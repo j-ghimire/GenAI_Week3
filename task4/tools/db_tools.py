@@ -22,12 +22,22 @@ def execute_read(sql: str, params: dict = None) -> List[Dict[str, Any]]:
 
 
 def get_schema_sql() -> str:
-    # Return the seed file contents if present
+    # Return only the CREATE TABLE statements from the seed file
     base = os.path.dirname(os.path.abspath(__file__))
     root = os.path.abspath(os.path.join(base, ".."))
-    path = os.path.join(root, "sql", "seed.sql")
+    path = os.path.join(root, "sql", "seed .sql")
     try:
         with open(path, "r", encoding="utf-8") as f:
-            return f.read()
+            content = f.read()
+        
+        # Extract only CREATE TABLE statements, stop at first INSERT
+        lines = content.split('\n')
+        schema_lines = []
+        for line in lines:
+            if line.strip().upper().startswith('INSERT'):
+                break
+            schema_lines.append(line)
+        
+        return '\n'.join(schema_lines)
     except Exception:
         return ""

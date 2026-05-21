@@ -9,12 +9,16 @@ services:
       - "5432:5432"
     volumes:
       - db-data:/var/lib/postgresql/data
-      - ./sql/seed.sql:/docker-entrypoint-initdb.d/seed.sql:ro
+      - "./sql/seed .sql:/docker-entrypoint-initdb.d/seed.sql:ro"
 
   api:
     build: .
     depends_on:
       - db
+    volumes:
+      - ./:/app
+    env_file:
+      - .env
     environment:
       - DATABASE_URL=postgresql+psycopg2://postgres:postgres@db:5432/appdb
       - GEMINI_API_KEY
@@ -27,8 +31,10 @@ services:
     build: .
     depends_on:
       - api
+    env_file:
+      - .env
     environment:
-      - API_URL=http://api:8000/query
+      - API_URL=http://api:8000/agent/sql
     ports:
       - "8501:8501"
     command: streamlit run streamlit_app.py --server.port=8501 --server.address=0.0.0.0
